@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI辅助入院评估系统</title>
+  <style>
+    :root {
+      --primary-color: #2c5e4f;
+      --bg-color: #f4f7f6;
+      --border-color: #dce3e1;
+      --text-color: #333;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg-color);
+      margin: 0;
+      padding: 20px;
+      color: var(--text-color);
+    }
+
+    .header {
+      text-align: center;
+      color: var(--primary-color);
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .header p {
+      font-size: 14px;
+      color: #666;
+      margin-top: 5px;
+    }
+
+    .container {
+      display: flex;
+      gap: 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* 左侧语音对话区 */
+    .voice-panel {
+      flex: 1;
+      background: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .voice-controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+
+    .btn-record {
+      background-color: #e74c3c;
+      color: white;
+    }
+
+    .btn-record.recording {
+      background-color: #c0392b;
+      animation: pulse 1.5s infinite;
+    }
+
+    .btn-stop {
+      background-color: #95a5a6;
+      color: white;
+    }
+
+    .btn-ai {
+      background-color: #3498db;
+      color: white;
+    }
+
+    .btn-save {
+      background-color: var(--primary-color);
+      color: white;
+      width: 100%;
+      margin-top: 20px;
+      padding: 15px;
+      font-size: 16px;
+    }
+
+    #transcript {
+      flex: 1;
+      width: 100%;
+      padding: 15px;
+      border: 1px solid var(--border-color);
+      border-radius: 5px;
+      resize: none;
+      font-size: 15px;
+      line-height: 1.6;
+      box-sizing: border-box;
+      background-color: #fafafa;
+    }
+
+    #transcript:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+
+    /* 右侧表格区 */
+    .form-panel {
+      flex: 1.5;
+      background: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      border: 1px solid var(--border-color);
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .form-group-title {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 10px 15px;
+      font-weight: bold;
+      font-size: 15px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      padding: 15px;
+    }
+
+    .form-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-item.full-width {
+      grid-column: span 2;
+    }
+
+    label {
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+
+    input,
+    select {
+      padding: 8px 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+
+    .required::after {
+      content: " *";
+      color: #e74c3c;
+    }
+
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7);
+      }
+
+      70% {
+        box-shadow: 0 0 0 10px rgba(231, 76, 60, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(231, 76, 60, 0);
+      }
+    }
+
+    /* 提示框 */
+    .toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      display: none;
+      z-index: 1000;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="header">
+    <h1>AI辅助入院评估系统（网页版）</h1>
+    <p>交付物03：支持语音录入，自动识别提取，数据可保存</p>
+  </div>
+
+  <div class="toast" id="toast">提示信息</div>
+
+  <div class="container">
+    <!-- 左侧：语音录入区 -->
+    <div class="voice-panel">
+      <h3 style="margin-top: 0; color: var(--primary-color);">患者访谈对话记录</h3>
+      <div class="voice-controls">
+        <button class="btn-record" id="startBtn">🎤 开始语音录入</button>
+        <button class="btn-stop" id="stopBtn" disabled>停止</button>
+        <button class="btn-ai" id="aiExtractBtn">✨ AI 提取信息填充右侧</button>
+      </div>
+      <textarea id="transcript" placeholder="点击“开始语音录入”后，请在此处进行对话，或者直接手动输入患者的访谈内容...（例如：患者男性，65岁，因腹痛入院...）"></textarea>
+    </div>
+
+    <!-- 右侧：评估表格区 -->
+    <div class="form-panel">
+      <form id="assessmentForm">
+        <!-- ① 基本信息 -->
+        <div class="form-group">
+          <div class="form-group-title">① 基本信息</div>
+          <div class="form-grid">
+            <div class="form-item">
+              <label class="required">姓名代号</label>
+              <input type="text" id="patientName" placeholder="如：王某">
+            </div>
+            <div class="form-item">
+              <label class="required">性别</label>
+              <select id="gender">
+                <option value="">请选择</option>
+                <option value="男">男</option>
+                <option value="女">女</option>
+              </select>
+            </div>
+            <div class="form-item">
+              <label class="required">年龄 (整数)</label>
+              <input type="number" id="age" placeholder="如：65">
+            </div>
+            <div class="form-item">
+              <label>文化程度</label>
+              <input type="text" id="education" placeholder="如：高中">
+            </div>
+            <div class="form-item">
+              <label>婚姻状况</label>
+              <input type="text" id="marital" placeholder="如：已婚">
+            </div>
+            <div class="form-item">
+              <label>居住情况 (选填)</label>
+              <select id="living">
+                <option value="">请选择</option>
+                <option value="独居">独居</option>
+                <option value="与配偶">与配偶</option>
+                <option value="与子女">与子女</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- ② 生命体征 -->
+        <div class="form-group">
+          <div class="form-group-title">② 生命体征</div>
+          <div class="form-grid">
+            <div class="form-item">
+              <label>体温 T (℃)</label>
+              <input type="text" id="temp" placeholder="数值 + 单位">
+            </div>
+            <div class="form-item">
+              <label>脉搏 P (次/分)</label>
+              <input type="text" id="pulse" placeholder="数值 + 单位">
+            </div>
+            <div class="form-item">
+              <label>呼吸 R (次/分)</label>
+              <input type="text" id="resp" placeholder="数值 + 单位">
+            </div>
+            <div class="form-item">
+              <label>血压 BP (收缩压/舒张压)</label>
+              <input type="text" id="bp" placeholder="如：120/80">
+            </div>
+            <div class="form-item">
+              <label>血氧饱和度 SpO2 (%)</label>
+              <input type="text" id="spo2" placeholder="如：98">
+            </div>
+            <div class="form-item">
+              <label>身高体重 (cm/kg)</label>
+              <input type="text" id="heightWeight" placeholder="如：170cm/65kg">
+            </div>
+          </div>
+        </div>
+
+        <!-- ③ 功能状态 -->
+        <div class="form-group">
+          <div class="form-group-title">③ 功能状态 * (口语化需转译)</div>
+          <div class="form-grid">
+            <div class="form-item full-width">
+              <label>活动能力 / 睡眠体位 / 进食 / 排泄</label>
+              <input type="text" id="functionalStatus" placeholder="如：活动后气促、端坐呼吸、进食正常、便秘">
+            </div>
+            <div class="form-item full-width">
+              <label>有无跌倒史</label>
+              <input type="text" id="fallHistory" placeholder="如：无 / 有（具体描述）">
+            </div>
+          </div>
+        </div>
+
+        <!-- ④ 风险评估 -->
+        <div class="form-group">
+          <div class="form-group-title">④ 风险评估 * (需工具计分)</div>
+          <div class="form-grid">
+            <div class="form-item full-width">
+              <label>疼痛 / 心理社会评估 / 跌倒风险 / 压力性损伤风险 / 营养风险 / 睡眠质量 / VTE风险</label>
+              <input type="text" id="riskAssessment" placeholder="写明所用工具 (Morse/Braden/NRS2002/Caprini) 与分值">
+            </div>
+          </div>
+        </div>
+
+        <!-- ⑤ 用药情况 -->
+        <div class="form-group">
+          <div class="form-group-title">⑤ 用药情况 * (极高难度，需防虚构)</div>
+          <div class="form-grid">
+            <div class="form-item">
+              <label>药名 / 剂量 / 频次</label>
+              <input type="text" id="medication" placeholder="如：不详，勿虚构">
+            </div>
+            <div class="form-item">
+              <label>依从性</label>
+              <input type="text" id="compliance" placeholder="如：良好 / 较差">
+            </div>
+            <div class="form-item full-width">
+              <label>过敏史 (无也必须记录)</label>
+              <input type="text" id="allergies" placeholder="如：青霉素过敏 / 无">
+            </div>
+          </div>
+        </div>
+
+        <!-- ⑥ 社会支持 -->
+        <div class="form-group">
+          <div class="form-group-title">⑥ 社会支持</div>
+          <div class="form-grid">
+            <div class="form-item">
+              <label>主要照护者 (需追问关系及同住)</label>
+              <input type="text" id="caregiver" placeholder="如：儿子，不同住">
+            </div>
+            <div class="form-item">
+              <label>联系方式</label>
+              <input type="text" id="contact" placeholder="电话/微信">
+            </div>
+            <div class="form-item">
+              <label>经济来源</label>
+              <input type="text" id="income" placeholder="如：退休金 / 医保">
+            </div>
+            <div class="form-item">
+              <label>出院去向</label>
+              <input type="text" id="destination" placeholder="如：回家 / 养老院">
+            </div>
+          </div>
+        </div>
+
+        <button type="button" class="btn-save" id="saveBtn">💾 保存当前患者数据</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // 语音识别初始化
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition;
+    let isRecording = false;
+
+    if (SpeechRecognition) {
+      recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'zh-CN';
+
+      recognition.onresult = function (event) {
+        let finalTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            finalTranscript += event.results[i][0].transcript + '。';
+          }
+        }
+        if (finalTranscript) {
+          const textarea = document.getElementById('transcript');
+          textarea.value += finalTranscript;
+          textarea.scrollTop = textarea.scrollHeight;
+        }
+      };
+
+      recognition.onerror = function (event) {
+        showToast('语音识别出错: ' + event.error);
+        stopRecording();
+      };
+    } else {
+      showToast('您的浏览器不支持语音识别，请使用 Chrome 或 Edge 浏览器，或手动输入。');
+      document.getElementById('startBtn').disabled = true;
+    }
+
+    // 按钮控制
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+
+    startBtn.addEventListener('click', () => {
+      if (recognition) {
+        recognition.start();
+        isRecording = true;
+        startBtn.classList.add('recording');
+        startBtn.textContent = '🎤 正在录音...';
+        stopBtn.disabled = false;
+      }
+    });
+
+    stopBtn.addEventListener('click', stopRecording);
+
+    function stopRecording() {
+      if (recognition && isRecording) {
+        recognition.stop();
+        isRecording = false;
+        startBtn.classList.remove('recording');
+        startBtn.textContent = '🎤 开始语音录入';
+        stopBtn.disabled = true;
+      }
+    }
+
+    // 模拟 AI 提取逻辑（基于关键词匹配）
+    document.getElementById('aiExtractBtn').addEventListener('click', () => {
+      const text = document.getElementById('transcript').value;
+      if (!text) {
+        showToast('请先进行语音录入或输入对话文本！');
+        return;
+      }
+
+      // 1. 提取年龄
+      const ageMatch = text.match(/(\d{2})岁/);
+      if (ageMatch) document.getElementById('age').value = ageMatch[1];
+
+      // 2. 提取性别
+      if (text.includes('男性') || text.includes('先生')) document.getElementById('gender').value = '男';
+      if (text.includes('女性') || text.includes('女士')) document.getElementById('gender').value = '女';
+
+      // 3. 提取血压 (如：120/80)
+      const bpMatch = text.match(/(\d{2,3})\/(\d{2,3})/);
+      if (bpMatch) document.getElementById('bp').value = `${bpMatch[1]}/${bpMatch[2]}`;
+
+      // 4. 提取体温
+      const tempMatch = text.match(/(3[5-9]\.\d)度/);
+      if (tempMatch) document.getElementById('temp').value = tempMatch[1];
+
+      // 5. 提取过敏史
+      if (text.includes('过敏')) {
+        document.getElementById('allergies').value = '需人工核对（AI识别到过敏相关词汇）';
+      } else if (text.includes('无过敏')) {
+        document.getElementById('allergies').value = '无';
+      }
+
+      // 6. 提取疼痛/功能状态（示例：垫三个枕/端坐呼吸）
+      if (text.includes('端坐') || text.includes('垫三个枕头')) {
+        document.getElementById('functionalStatus').value = '端坐呼吸';
+      }
+
+      showToast('AI 已尝试从文本中提取关键信息，请人工核对！');
+    });
+
+    // 保存数据到 LocalStorage
+    document.getElementById('saveBtn').addEventListener('click', () => {
+      const formData = {};
+      const inputs = document.querySelectorAll('input, select');
+      inputs.forEach(input => {
+        formData[input.id] = input.value;
+      });
+      formData['transcript'] = document.getElementById('transcript').value;
+
+      localStorage.setItem('patientAssessmentData', JSON.stringify(formData));
+      showToast('✅ 患者数据已成功保存至本地！');
+    });
+
+    // 页面加载时恢复数据
+    window.addEventListener('load', () => {
+      const savedData = localStorage.getItem('patientAssessmentData');
+      if (savedData) {
+        const formData = JSON.parse(savedData);
+        for (const key in formData) {
+          if (key === 'transcript') {
+            document.getElementById('transcript').value = formData[key];
+          } else {
+            const element = document.getElementById(key);
+            if (element) element.value = formData[key];
+          }
+        }
+      }
+    });
+
+    // 提示框功能
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.style.display = 'block';
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, 3000);
+    }
+  </script>
+</body>
+
+</html>
