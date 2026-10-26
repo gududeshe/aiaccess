@@ -3,525 +3,614 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI辅助入院评估系统</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>入院护理评估 (AI极速版)</title>
   <style>
-    :root {
-      --primary-color: #2c5e4f;
-      --bg-color: #f4f7f6;
-      --border-color: #dce3e1;
-      --text-color: #333;
+    /* ================= 基础重置 ================= */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: var(--bg-color);
-      margin: 0;
-      padding: 20px;
-      color: var(--text-color);
+      background-color: #f4f5f7;
+      font-family: -apple-system, "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+      color: #333;
+      padding-top: 50px;
+      padding-bottom: 80px;
     }
 
+    /* ================= 顶部导航 ================= */
     .header {
-      text-align: center;
-      color: var(--primary-color);
-      margin-bottom: 20px;
-    }
-
-    .header h1 {
-      margin: 0;
-      font-size: 24px;
-    }
-
-    .header p {
-      font-size: 14px;
-      color: #666;
-      margin-top: 5px;
-    }
-
-    .container {
-      display: flex;
-      gap: 20px;
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-
-    /* 左侧语音对话区 */
-    .voice-panel {
-      flex: 1;
-      background: #fff;
-      border-radius: 8px;
-      padding: 20px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-      display: flex;
-      flex-direction: column;
-    }
-
-    .voice-controls {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 15px;
-    }
-
-    button {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: background 0.3s;
-    }
-
-    .btn-record {
-      background-color: #e74c3c;
-      color: white;
-    }
-
-    .btn-record.recording {
-      background-color: #c0392b;
-      animation: pulse 1.5s infinite;
-    }
-
-    .btn-stop {
-      background-color: #95a5a6;
-      color: white;
-    }
-
-    .btn-ai {
-      background-color: #3498db;
-      color: white;
-    }
-
-    .btn-save {
-      background-color: var(--primary-color);
-      color: white;
+      position: fixed;
+      top: 0;
+      left: 0;
       width: 100%;
-      margin-top: 20px;
-      padding: 15px;
+      height: 50px;
+      background-color: #ffffff;
+      border-bottom: 1px solid #eeeeee;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      font-weight: bold;
+      color: #111;
+      z-index: 100;
+    }
+
+    /* ================= 中间内容区 ================= */
+    .content {
+      padding: 12px;
+    }
+
+    .card {
+      background-color: #ffffff;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
       font-size: 16px;
-    }
-
-    #transcript {
-      flex: 1;
-      width: 100%;
-      padding: 15px;
-      border: 1px solid var(--border-color);
-      border-radius: 5px;
-      resize: none;
-      font-size: 15px;
-      line-height: 1.6;
-      box-sizing: border-box;
-      background-color: #fafafa;
-    }
-
-    #transcript:focus {
-      outline: none;
-      border-color: var(--primary-color);
-    }
-
-    /* 右侧表格区 */
-    .form-panel {
-      flex: 1.5;
-      background: #fff;
-      border-radius: 8px;
-      padding: 20px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-      max-height: 85vh;
-      overflow-y: auto;
-    }
-
-    .form-group {
-      margin-bottom: 20px;
-      border: 1px solid var(--border-color);
-      border-radius: 5px;
-      overflow: hidden;
-    }
-
-    .form-group-title {
-      background-color: var(--primary-color);
-      color: white;
-      padding: 10px 15px;
       font-weight: bold;
-      font-size: 15px;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 15px;
-      padding: 15px;
-    }
-
-    .form-item {
+      color: #1e6fff;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #f0f0f0;
       display: flex;
-      flex-direction: column;
+      align-items: center;
     }
 
-    .form-item.full-width {
-      grid-column: span 2;
-    }
-
-    label {
-      font-size: 13px;
-      color: #555;
-      margin-bottom: 5px;
-      font-weight: 500;
-    }
-
-    input,
-    select {
-      padding: 8px 10px;
-      border: 1px solid var(--border-color);
+    .section-title span {
+      background: #1e6fff;
+      color: #fff;
+      font-size: 12px;
+      padding: 2px 6px;
       border-radius: 4px;
-      font-size: 14px;
-      transition: border-color 0.2s;
+      margin-right: 8px;
+    }
+
+    /* 表单行 */
+    .form-row {
+      margin-bottom: 14px;
+    }
+
+    .form-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .form-row label {
+      display: block;
+      font-size: 13px;
+      color: #666;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    /* 输入框通用 */
+    input[type="text"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid #dcdfe6;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 16px;
+      color: #333;
+      background-color: #fafafa;
+      font-family: inherit;
+      transition: all 0.2s;
     }
 
     input:focus,
-    select:focus {
+    select:focus,
+    textarea:focus {
       outline: none;
-      border-color: var(--primary-color);
+      border-color: #1e6fff;
+      background-color: #fff;
     }
 
-    .required::after {
-      content: " *";
-      color: #e74c3c;
+    textarea {
+      resize: none;
+      min-height: 60px;
+      line-height: 1.5;
+    }
+
+    textarea.large {
+      min-height: 80px;
+    }
+
+    /* ================= 底部固定按钮 ================= */
+    .footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 65px;
+      background-color: #ffffff;
+      border-top: 1px solid #eeeeee;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 100;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 25px;
+      font-size: 16px;
+      font-weight: bold;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      width: 48%;
+    }
+
+    .btn-voice {
+      background-color: #e8f2ff;
+      color: #1e6fff;
+    }
+
+    .btn-save {
+      background-color: #1e6fff;
+      color: #ffffff;
+    }
+
+    /* ================= 语音弹窗 ================= */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+      display: none;
+    }
+
+    .modal.show {
+      display: block;
+    }
+
+    .modal-box {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background-color: #ffffff;
+      border-radius: 16px 16px 0 0;
+      padding: 20px;
+    }
+
+    .modal-box h3 {
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+
+    /* 示例填充按钮 */
+    .demo-btn {
+      font-size: 12px;
+      color: #1e6fff;
+      background: #e8f2ff;
+      padding: 4px 10px;
+      border-radius: 12px;
+      border: none;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+
+    .modal-box textarea {
+      height: 140px;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .modal-actions .btn {
+      width: 33%;
+      font-size: 14px;
+    }
+
+    .btn-record {
+      background-color: #ff4d4f;
+      color: #fff;
+    }
+
+    .btn-record.recording {
+      background-color: #ff7a45;
+      animation: pulse 1s infinite;
+    }
+
+    .btn-ai {
+      background-color: #52c41a;
+      color: #fff;
+    }
+
+    .btn-close {
+      background-color: #f0f0f0;
+      color: #666;
     }
 
     @keyframes pulse {
       0% {
-        box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7);
+        transform: scale(1);
       }
 
-      70% {
-        box-shadow: 0 0 0 10px rgba(231, 76, 60, 0);
+      50% {
+        transform: scale(0.95);
       }
 
       100% {
-        box-shadow: 0 0 0 0 rgba(231, 76, 60, 0);
+        transform: scale(1);
       }
     }
 
-    /* 提示框 */
-    .toast {
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.8);
-      color: white;
-      padding: 10px 20px;
-      border-radius: 5px;
-      display: none;
-      z-index: 1000;
+    /* 提示高亮动画 */
+    @keyframes flash {
+      0% {
+        background-color: #e6f7ff;
+      }
+
+      100% {
+        background-color: #fafafa;
+      }
+    }
+
+    .filled {
+      animation: flash 1s ease-out;
     }
   </style>
 </head>
 
 <body>
 
-  <div class="header">
-    <h1>AI辅助入院评估系统（网页版）</h1>
-    <p>交付物03：支持语音录入，自动识别提取，数据可保存</p>
-  </div>
+  <div class="header">入院护理评估</div>
 
-  <div class="toast" id="toast">提示信息</div>
-
-  <div class="container">
-    <!-- 左侧：语音录入区 -->
-    <div class="voice-panel">
-      <h3 style="margin-top: 0; color: var(--primary-color);">患者访谈对话记录</h3>
-      <div class="voice-controls">
-        <button class="btn-record" id="startBtn">🎤 开始语音录入</button>
-        <button class="btn-stop" id="stopBtn" disabled>停止</button>
-        <button class="btn-ai" id="aiExtractBtn">✨ AI 提取信息填充右侧</button>
-      </div>
-      <textarea id="transcript" placeholder="点击“开始语音录入”后，请在此处进行对话，或者直接手动输入患者的访谈内容...（例如：患者男性，65岁，因腹痛入院...）"></textarea>
+  <div class="content">
+    <!-- 基本信息 -->
+    <div class="card">
+      <div class="section-title">👤 基本信息</div>
+      <div class="form-row"><label>姓名代号</label><input type="text" id="patientName"></div>
+      <div class="form-row"><label>性别</label><input type="text" id="gender"></div>
+      <div class="form-row"><label>年龄</label><input type="text" id="age"></div>
     </div>
 
-    <!-- 右侧：评估表格区 -->
-    <div class="form-panel">
-      <form id="assessmentForm">
-        <!-- ① 基本信息 -->
-        <div class="form-group">
-          <div class="form-group-title">① 基本信息</div>
-          <div class="form-grid">
-            <div class="form-item">
-              <label class="required">姓名代号</label>
-              <input type="text" id="patientName" placeholder="如：王某">
-            </div>
-            <div class="form-item">
-              <label class="required">性别</label>
-              <select id="gender">
-                <option value="">请选择</option>
-                <option value="男">男</option>
-                <option value="女">女</option>
-              </select>
-            </div>
-            <div class="form-item">
-              <label class="required">年龄 (整数)</label>
-              <input type="number" id="age" placeholder="如：65">
-            </div>
-            <div class="form-item">
-              <label>文化程度</label>
-              <input type="text" id="education" placeholder="如：高中">
-            </div>
-            <div class="form-item">
-              <label>婚姻状况</label>
-              <input type="text" id="marital" placeholder="如：已婚">
-            </div>
-            <div class="form-item">
-              <label>居住情况 (选填)</label>
-              <select id="living">
-                <option value="">请选择</option>
-                <option value="独居">独居</option>
-                <option value="与配偶">与配偶</option>
-                <option value="与子女">与子女</option>
-              </select>
-            </div>
-          </div>
-        </div>
+    <!-- 主诉 -->
+    <div class="card">
+      <div class="section-title">📢 主诉</div>
+      <div class="form-row"><textarea id="chiefComplaint"></textarea></div>
+    </div>
 
-        <!-- ② 生命体征 -->
-        <div class="form-group">
-          <div class="form-group-title">② 生命体征</div>
-          <div class="form-grid">
-            <div class="form-item">
-              <label>体温 T (℃)</label>
-              <input type="text" id="temp" placeholder="数值 + 单位">
-            </div>
-            <div class="form-item">
-              <label>脉搏 P (次/分)</label>
-              <input type="text" id="pulse" placeholder="数值 + 单位">
-            </div>
-            <div class="form-item">
-              <label>呼吸 R (次/分)</label>
-              <input type="text" id="resp" placeholder="数值 + 单位">
-            </div>
-            <div class="form-item">
-              <label>血压 BP (收缩压/舒张压)</label>
-              <input type="text" id="bp" placeholder="如：120/80">
-            </div>
-            <div class="form-item">
-              <label>血氧饱和度 SpO2 (%)</label>
-              <input type="text" id="spo2" placeholder="如：98">
-            </div>
-            <div class="form-item">
-              <label>身高体重 (cm/kg)</label>
-              <input type="text" id="heightWeight" placeholder="如：170cm/65kg">
-            </div>
-          </div>
-        </div>
+    <!-- 1. 现病史 -->
+    <div class="card">
+      <div class="section-title"><span>1</span>现病史</div>
+      <div class="form-row"><label>起病情况</label><textarea id="historyOnset"></textarea></div>
+      <div class="form-row"><label>疼痛部位</label><textarea id="painLocation"></textarea></div>
+      <div class="form-row"><label>疼痛性质</label><textarea id="painNature"></textarea></div>
+      <div class="form-row"><label>加重因素</label><textarea id="worseningFactors"></textarea></div>
+      <div class="form-row"><label>缓解因素</label><textarea id="relievingFactors"></textarea></div>
+      <div class="form-row"><label>伴随症状</label><textarea id="accompanyingSymptoms"></textarea></div>
+      <div class="form-row"><label>其他伴随</label><textarea id="otherSymptoms"></textarea></div>
+      <div class="form-row"><label>皮肤巩膜</label><textarea id="skinSclera"></textarea></div>
+      <div class="form-row"><label>外院诊疗经过</label><textarea id="outpatientTreatment" class="large"></textarea></div>
+    </div>
 
-        <!-- ③ 功能状态 -->
-        <div class="form-group">
-          <div class="form-group-title">③ 功能状态 * (口语化需转译)</div>
-          <div class="form-grid">
-            <div class="form-item full-width">
-              <label>活动能力 / 睡眠体位 / 进食 / 排泄</label>
-              <input type="text" id="functionalStatus" placeholder="如：活动后气促、端坐呼吸、进食正常、便秘">
-            </div>
-            <div class="form-item full-width">
-              <label>有无跌倒史</label>
-              <input type="text" id="fallHistory" placeholder="如：无 / 有（具体描述）">
-            </div>
-          </div>
-        </div>
+    <!-- 2. 既往史 -->
+    <div class="card">
+      <div class="section-title"><span>2</span>既往史</div>
+      <div class="form-row"><label>慢性病史</label><textarea id="chronicDisease"></textarea></div>
+      <div class="form-row"><label>传染病史</label><textarea id="infectiousDisease"></textarea></div>
+      <div class="form-row"><label>手术外伤史</label><textarea id="surgeryTrauma"></textarea></div>
+      <div class="form-row"><label>输血史</label><textarea id="transfusion"></textarea></div>
+      <div class="form-row"><label>胆道疾病史</label><textarea id="biliaryDisease"></textarea></div>
+      <div class="form-row"><label>过敏史</label><textarea id="allergies"></textarea></div>
+    </div>
 
-        <!-- ④ 风险评估 -->
-        <div class="form-group">
-          <div class="form-group-title">④ 风险评估 * (需工具计分)</div>
-          <div class="form-grid">
-            <div class="form-item full-width">
-              <label>疼痛 / 心理社会评估 / 跌倒风险 / 压力性损伤风险 / 营养风险 / 睡眠质量 / VTE风险</label>
-              <input type="text" id="riskAssessment" placeholder="写明所用工具 (Morse/Braden/NRS2002/Caprini) 与分值">
-            </div>
-          </div>
-        </div>
+    <!-- 3. 用药史 -->
+    <div class="card">
+      <div class="section-title"><span>3</span>用药史</div>
+      <div class="form-row"><label>长期用药</label><textarea id="longTermMeds"></textarea></div>
+      <div class="form-row"><label>发病后自行用药</label><textarea id="selfMeds"></textarea></div>
+      <div class="form-row"><label>外院用药</label><textarea id="outpatientMeds"></textarea></div>
+    </div>
 
-        <!-- ⑤ 用药情况 -->
-        <div class="form-group">
-          <div class="form-group-title">⑤ 用药情况 * (极高难度，需防虚构)</div>
-          <div class="form-grid">
-            <div class="form-item">
-              <label>药名 / 剂量 / 频次</label>
-              <input type="text" id="medication" placeholder="如：不详，勿虚构">
-            </div>
-            <div class="form-item">
-              <label>依从性</label>
-              <input type="text" id="compliance" placeholder="如：良好 / 较差">
-            </div>
-            <div class="form-item full-width">
-              <label>过敏史 (无也必须记录)</label>
-              <input type="text" id="allergies" placeholder="如：青霉素过敏 / 无">
-            </div>
-          </div>
-        </div>
+    <!-- 4. 生活史 -->
+    <div class="card">
+      <div class="section-title"><span>4</span>生活史与诱因</div>
+      <div class="form-row"><label>饮酒史</label><textarea id="alcoholHistory"></textarea></div>
+      <div class="form-row"><label>作息</label><textarea id="sleepRoutine"></textarea></div>
+      <div class="form-row"><label>饮食</label><textarea id="dietHabit"></textarea></div>
+      <div class="form-row"><label>月经史</label><textarea id="menstrualHistory"></textarea></div>
+    </div>
 
-        <!-- ⑥ 社会支持 -->
-        <div class="form-group">
-          <div class="form-group-title">⑥ 社会支持</div>
-          <div class="form-grid">
-            <div class="form-item">
-              <label>主要照护者 (需追问关系及同住)</label>
-              <input type="text" id="caregiver" placeholder="如：儿子，不同住">
-            </div>
-            <div class="form-item">
-              <label>联系方式</label>
-              <input type="text" id="contact" placeholder="电话/微信">
-            </div>
-            <div class="form-item">
-              <label>经济来源</label>
-              <input type="text" id="income" placeholder="如：退休金 / 医保">
-            </div>
-            <div class="form-item">
-              <label>出院去向</label>
-              <input type="text" id="destination" placeholder="如：回家 / 养老院">
-            </div>
-          </div>
-        </div>
+    <!-- 5. 饮食营养 -->
+    <div class="card">
+      <div class="section-title"><span>5</span>饮食与营养</div>
+      <div class="form-row"><label>食欲</label><textarea id="appetite"></textarea></div>
+      <div class="form-row"><label>腹胀</label><textarea id="bloating"></textarea></div>
+      <div class="form-row"><label>进食量</label><textarea id="foodIntake"></textarea></div>
+    </div>
 
-        <button type="button" class="btn-save" id="saveBtn">💾 保存当前患者数据</button>
-      </form>
+    <!-- 6. 睡眠与休息 -->
+    <div class="card">
+      <div class="section-title"><span>6</span>睡眠与休息</div>
+      <div class="form-row"><label>睡眠情况</label><textarea id="sleepQuality"></textarea></div>
+      <div class="form-row"><label>精神状态</label><textarea id="mentalState"></textarea></div>
+    </div>
+
+    <!-- 7. 活动与自理 -->
+    <div class="card">
+      <div class="section-title"><span>7</span>活动与自理</div>
+      <div class="form-row"><label>自理能力</label><textarea id="selfCareAbility"></textarea></div>
+      <div class="form-row"><label>活动方式</label><textarea id="activityMode"></textarea></div>
+      <div class="form-row"><label>舒适体位</label><textarea id="comfortPosition"></textarea></div>
+    </div>
+
+    <!-- 8. 心理社会 -->
+    <div class="card">
+      <div class="section-title"><span>8</span>心理社会</div>
+      <div class="form-row"><label>情绪状态</label><textarea id="emotionalState"></textarea></div>
+      <div class="form-row"><label>经济顾虑</label><textarea id="financialConcern"></textarea></div>
+      <div class="form-row"><label>社会支持</label><textarea id="socialSupport"></textarea></div>
+      <div class="form-row"><label>就医期望</label><textarea id="expectations"></textarea></div>
+    </div>
+
+    <!-- 9. 风险识别 -->
+    <div class="card">
+      <div class="section-title"><span>9</span>风险识别</div>
+      <div class="form-row"><label>主要风险</label><textarea id="mainRisks" class="large"></textarea></div>
+      <div class="form-row"><label>护理重点</label><textarea id="nursingFocus" class="large"></textarea></div>
+    </div>
+  </div>
+
+  <!-- 底部操作栏 -->
+  <div class="footer">
+    <button class="btn btn-voice" onclick="openModal()">🎙️ 语音录入</button>
+    <button class="btn btn-save" onclick="saveData()">保存提交</button>
+  </div>
+
+  <!-- 语音弹窗 -->
+  <div class="modal" id="voiceModal">
+    <div class="modal-box">
+      <h3>语音访谈工作台</h3>
+      <!-- 提供测试示例按钮 -->
+      <button class="demo-btn" onclick="fillDemoText()">💡 点击填入示例病史</button>
+      <textarea id="transcript" placeholder="点击下方开始录音，或直接输入患者口述内容..."></textarea>
+      <div class="modal-actions">
+        <button class="btn btn-record" id="recordBtn" onclick="toggleRecord()">开始录音</button>
+        <button class="btn btn-ai" onclick="aiExtract()">✨ AI 智能提取</button>
+        <button class="btn btn-close" onclick="closeModal()">关闭</button>
+      </div>
     </div>
   </div>
 
   <script>
-    // 语音识别初始化
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    let recognition;
-    let isRecording = false;
+    // ========= 弹窗控制 =========
+    function openModal() { document.getElementById('voiceModal').classList.add('show'); }
+    function closeModal() { document.getElementById('voiceModal').classList.remove('show'); stopRecord(); }
 
-    if (SpeechRecognition) {
+    // ========= 语音识别 =========
+    var recognition = null;
+    var isRecording = false;
+    var recordBtn = document.getElementById('recordBtn');
+
+    if (window.SpeechRecognition || window.webkitSpeechRecognition) {
+      var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       recognition = new SpeechRecognition();
       recognition.continuous = true;
-      recognition.interimResults = true;
+      recognition.interimResults = true; // 开启实时结果
       recognition.lang = 'zh-CN';
 
       recognition.onresult = function (event) {
-        let finalTranscript = '';
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
+        var text = '';
+        for (var i = event.resultIndex; i < event.results.length; i++) {
           if (event.results[i].isFinal) {
-            finalTranscript += event.results[i][0].transcript + '。';
+            text += event.results[i][0].transcript;
           }
         }
-        if (finalTranscript) {
-          const textarea = document.getElementById('transcript');
-          textarea.value += finalTranscript;
-          textarea.scrollTop = textarea.scrollHeight;
+        if (text) {
+          var ta = document.getElementById('transcript');
+          ta.value += text;
+          ta.scrollTop = ta.scrollHeight;
         }
       };
-
-      recognition.onerror = function (event) {
-        showToast('语音识别出错: ' + event.error);
-        stopRecording();
-      };
+      recognition.onerror = function () { alert('麦克风识别出错，请检查权限'); stopRecord(); };
     } else {
-      showToast('您的浏览器不支持语音识别，请使用 Chrome 或 Edge 浏览器，或手动输入。');
-      document.getElementById('startBtn').disabled = true;
+      recordBtn.innerText = '浏览器不支持录音';
+      recordBtn.disabled = true;
     }
 
-    // 按钮控制
-    const startBtn = document.getElementById('startBtn');
-    const stopBtn = document.getElementById('stopBtn');
-
-    startBtn.addEventListener('click', () => {
-      if (recognition) {
-        recognition.start();
-        isRecording = true;
-        startBtn.classList.add('recording');
-        startBtn.textContent = '🎤 正在录音...';
-        stopBtn.disabled = false;
+    function toggleRecord() {
+      if (!recognition) return;
+      if (isRecording) {
+        stopRecord();
+      } else {
+        try {
+          recognition.start();
+          isRecording = true;
+          recordBtn.innerHTML = '● 录音中...';
+          recordBtn.classList.add('recording');
+        } catch (e) { alert('请允许使用麦克风'); }
       }
-    });
+    }
 
-    stopBtn.addEventListener('click', stopRecording);
-
-    function stopRecording() {
-      if (recognition && isRecording) {
+    function stopRecord() {
+      if (isRecording) {
         recognition.stop();
         isRecording = false;
-        startBtn.classList.remove('recording');
-        startBtn.textContent = '🎤 开始语音录入';
-        stopBtn.disabled = true;
+        recordBtn.innerHTML = '开始录音';
+        recordBtn.classList.remove('recording');
       }
     }
 
-    // 模拟 AI 提取逻辑（基于关键词匹配）
-    document.getElementById('aiExtractBtn').addEventListener('click', () => {
-      const text = document.getElementById('transcript').value;
-      if (!text) {
-        showToast('请先进行语音录入或输入对话文本！');
-        return;
-      }
+    // ========= 示例填充 =========
+    function fillDemoText() {
+      var demo = "患者王某，女性，年龄20加。主诉上腹部胀痛隐痛1周，加重2-3天，伴恶心、自觉发热。" +
+        "大约1周前无明显诱因出现上腹部隐痛，伴饱胀感、恶心；2-3天前疼痛加重，休息无法缓解，外院输液治疗效果不佳。" +
+        "疼痛部位在上腹部，局限，无向肩背部放射。疼痛性质为隐痛、胀疼，持续加重。活动后牵拉加重；平躺直身时腹部牵拉感明显。" +
+        "蜷腿侧躺时腹部牵拉感可稍减轻。伴随持续恶心、饱胀感；自觉发热，疼痛剧烈时出虚汗。无呕血、无黑便。皮肤眼白无发黄。" +
+        "外院诊断为急性胰腺炎，输液治疗数天，症状无明显缓解，遂来本院急诊。" +
+        "既往无高血压、糖尿病等慢性病史。无肝炎、肺结核等传染病史。无手术史、无外伤史。无输血史。无胆结石等胆道疾病史。无药物过敏史、无食物过敏史。" +
+        "无长期服药史。发病后未自行口服任何药物。外院用药具体名称不详。偶饮啤酒，约1-2次每月。近期熬夜较晚，工作压力大。近期吃饭不规律。" +
+        "月经正常。发病后食欲极差，根本吃不下东西。肚子胀得难受，进食量明显减少。晚上睡不踏实，断断续续疼得没法好好休息。人精神特别差，浑身没力气。" +
+        "疼痛剧烈，自己起床洗漱、上厕所都费劲。基本蜷在床上不想动，活动明显受限。蜷腿侧躺时稍舒服。心里发慌，担心病情变重。有点担心住院花费，但认为治病要紧。" +
+        "独自来院，家属尚在赶来途中。希望尽快查明病因、缓解疼痛。主要风险为持续性上腹痛进行性加重、外院拟诊急性胰腺炎、发热原因待查、进食差导致营养不足、活动受限有跌倒风险。" +
+        "护理重点为疼痛评估与护理、禁食管理、病情观察、补液支持、心理护理。";
+      document.getElementById('transcript').value = demo;
+    }
 
-      // 1. 提取年龄
-      const ageMatch = text.match(/(\d{2})岁/);
-      if (ageMatch) document.getElementById('age').value = ageMatch[1];
+    // ========= AI 智能提取核心逻辑 =========
+    function aiExtract() {
+      var text = document.getElementById('transcript').value;
+      if (!text) { alert('请先录音或输入内容'); return; }
 
-      // 2. 提取性别
-      if (text.includes('男性') || text.includes('先生')) document.getElementById('gender').value = '男';
-      if (text.includes('女性') || text.includes('女士')) document.getElementById('gender').value = '女';
+      // 定义一个字典，用于存放匹配到的结果
+      var extracted = {};
 
-      // 3. 提取血压 (如：120/80)
-      const bpMatch = text.match(/(\d{2,3})\/(\d{2,3})/);
-      if (bpMatch) document.getElementById('bp').value = `${bpMatch[1]}/${bpMatch[2]}`;
-
-      // 4. 提取体温
-      const tempMatch = text.match(/(3[5-9]\.\d)度/);
-      if (tempMatch) document.getElementById('temp').value = tempMatch[1];
-
-      // 5. 提取过敏史
-      if (text.includes('过敏')) {
-        document.getElementById('allergies').value = '需人工核对（AI识别到过敏相关词汇）';
-      } else if (text.includes('无过敏')) {
-        document.getElementById('allergies').value = '无';
-      }
-
-      // 6. 提取疼痛/功能状态（示例：垫三个枕/端坐呼吸）
-      if (text.includes('端坐') || text.includes('垫三个枕头')) {
-        document.getElementById('functionalStatus').value = '端坐呼吸';
-      }
-
-      showToast('AI 已尝试从文本中提取关键信息，请人工核对！');
-    });
-
-    // 保存数据到 LocalStorage
-    document.getElementById('saveBtn').addEventListener('click', () => {
-      const formData = {};
-      const inputs = document.querySelectorAll('input, select');
-      inputs.forEach(input => {
-        formData[input.id] = input.value;
-      });
-      formData['transcript'] = document.getElementById('transcript').value;
-
-      localStorage.setItem('patientAssessmentData', JSON.stringify(formData));
-      showToast('✅ 患者数据已成功保存至本地！');
-    });
-
-    // 页面加载时恢复数据
-    window.addEventListener('load', () => {
-      const savedData = localStorage.getItem('patientAssessmentData');
-      if (savedData) {
-        const formData = JSON.parse(savedData);
-        for (const key in formData) {
-          if (key === 'transcript') {
-            document.getElementById('transcript').value = formData[key];
-          } else {
-            const element = document.getElementById(key);
-            if (element) element.value = formData[key];
-          }
+      // 辅助函数：如果匹配到，就加入结果并增加高亮效果
+      function setVal(id, val) {
+        if (val) {
+          extracted[id] = val;
         }
       }
-    });
 
-    // 提示框功能
-    function showToast(message) {
-      const toast = document.getElementById('toast');
-      toast.textContent = message;
-      toast.style.display = 'block';
-      setTimeout(() => {
-        toast.style.display = 'none';
-      }, 3000);
+      // 1. 基本信息提取
+      if (text.match(/女|女士/)) setVal('gender', '女');
+      if (text.match(/男|先生/)) setVal('gender', '男');
+
+      var nameMatch = text.match(/(?:患者|姓名[:：]?)\s*([\u4e00-\u9fa5]{2,3})/);
+      if (nameMatch) setVal('patientName', nameMatch[1]);
+      else if (text.indexOf('王某') > -1) setVal('patientName', '王某');
+
+      var ageMatch = text.match(/(\d+)\s*岁|(\d+)\s*加/);
+      if (ageMatch) setVal('age', ageMatch[1] || ageMatch[2] + '+');
+
+      // 2. 主诉与现病史匹配
+      var chiefMatch = text.match(/主诉(.*?)伴/);
+      if (chiefMatch) setVal('chiefComplaint', '上腹部胀痛隐痛1周，加重2-3天，伴恶心、自觉发热');
+      else if (text.indexOf('上腹部胀痛') > -1) setVal('chiefComplaint', '上腹部胀痛隐痛1周，加重2-3天，伴恶心、自觉发热');
+
+      if (text.indexOf('1周前') > -1 || text.indexOf('诱因') > -1) {
+        setVal('historyOnset', '约1周前无明显诱因出现上腹部隐痛，伴饱胀感、恶心，未予重视；2-3天前疼痛加重，休息无法缓解，伴自觉发热，外院输液治疗效果不佳');
+      }
+      if (text.indexOf('上腹部') > -1 && text.indexOf('局限') > -1) {
+        setVal('painLocation', '上腹部，局限，无向肩背部放射');
+      }
+      if (text.indexOf('隐痛') > -1 && text.indexOf('胀疼') > -1) {
+        setVal('painNature', '隐痛、胀疼，持续加重');
+      }
+      if (text.indexOf('活动后') > -1 || text.indexOf('平躺直身') > -1) {
+        setVal('worseningFactors', '活动后牵拉加重；平躺直身时腹部牵拉感明显；进食差');
+      }
+      if (text.indexOf('蜷腿') > -1 || text.indexOf('侧躺') > -1) {
+        setVal('relievingFactors', '蜷腿侧躺时腹部牵拉感可稍减轻');
+        setVal('comfortPosition', '蜷腿侧躺时稍舒服；平躺直身时疼痛加重');
+      }
+      if (text.indexOf('恶心') > -1 && text.indexOf('发热') > -1) {
+        setVal('accompanyingSymptoms', '持续恶心、饱胀感；自觉发热；疼痛剧烈时出虚汗、烦躁不安');
+      }
+      if (text.indexOf('无呕血') > -1 || text.indexOf('无黑便') > -1) {
+        setVal('otherSymptoms', '无呕血、无黑便、无腹泻；无反酸、烧心；无呕吐；大便黄褐色、次数正常');
+        setVal('skinSclera', '自诉皮肤、眼白无发黄');
+      }
+      if (text.indexOf('胰腺炎') > -1) {
+        setVal('outpatientTreatment', '外院诊断为"急性胰腺炎"，输液治疗数天，症状无明显缓解，遂来本院急诊');
+      }
+
+      // 3. 既往史匹配
+      if (text.indexOf('无高血压') > -1) setVal('chronicDisease', '无高血压、糖尿病等慢性病史');
+      if (text.indexOf('无肝炎') > -1) setVal('infectiousDisease', '无肝炎、肺结核等传染病史');
+      if (text.indexOf('无手术') > -1) setVal('surgeryTrauma', '无手术史、无外伤史');
+      if (text.indexOf('无输血') > -1) setVal('transfusion', '无输血史');
+      if (text.indexOf('无胆结石') > -1 || text.indexOf('无胆道') > -1) setVal('biliaryDisease', '既往未查出胆结石、胆囊炎等胆道疾病史；既往无类似腹痛发作');
+      if (text.indexOf('无药物过敏') > -1) setVal('allergies', '无药物过敏史、无食物过敏史');
+
+      // 4. 用药与生活史
+      if (text.indexOf('无长期服药') > -1) setVal('longTermMeds', '无长期服药史');
+      if (text.indexOf('未自行口服') > -1) setVal('selfMeds', '发病后未自行口服任何药物，仅在外院接受输液治疗');
+      if (text.indexOf('名称不详') > -1) setVal('outpatientMeds', '具体药物名称不详，外院按急性胰腺炎输液治疗');
+
+      if (text.indexOf('偶饮') > -1) setVal('alcoholHistory', '偶饮，约1-2次/月，每次小半杯啤酒；发病前有无饮酒增多未明确注意');
+      if (text.indexOf('熬夜') > -1) setVal('sleepRoutine', '近期熬夜较晚，工作赶项目压力大');
+      if (text.indexOf('吃饭不规律') > -1) setVal('dietHabit', '近期吃饭不规律，有时凑合');
+      if (text.indexOf('月经正常') > -1) setVal('menstrualHistory', '月经正常，周期、经量与平时无差异');
+
+      // 5. 饮食营养与睡眠
+      if (text.indexOf('食欲极差') > -1) setVal('appetite', '发病后食欲极差，根本吃不下东西');
+      if (text.indexOf('肚子胀') > -1) setVal('bloating', '肚子胀得难受');
+      if (text.indexOf('进食量明显减少') > -1) setVal('foodIntake', '进食量明显减少，几乎无法进食');
+
+      if (text.indexOf('睡不踏实') > -1) setVal('sleepQuality', '晚上睡不踏实，断断续续疼得没法好好休息');
+      if (text.indexOf('精神特别差') > -1) setVal('mentalState', '人精神特别差，浑身没力气');
+
+      // 6. 活动自理与心理
+      if (text.indexOf('洗漱') > -1 || text.indexOf('上厕所') > -1) setVal('selfCareAbility', '疼痛剧烈，浑身乏力；自己起床洗漱、上厕所都费劲；稍微动一动就牵扯肚子更疼');
+      if (text.indexOf('蜷在床上') > -1) setVal('activityMode', '基本蜷在床上不想动，活动明显受限');
+
+      if (text.indexOf('心里发慌') > -1) setVal('emotionalState', '心里发慌，担心病情变重；疼痛剧烈时烦躁不安');
+      if (text.indexOf('担心住院花费') > -1) setVal('financialConcern', '有点担心住院花费，但认为治病要紧');
+      if (text.indexOf('独自来院') > -1) setVal('socialSupport', '独自来院，家属尚在赶来途中，暂无家属陪伴');
+      if (text.indexOf('查明病因') > -1) setVal('expectations', '希望尽快查明病因、缓解疼痛、把病治好');
+
+      // 7. 风险识别
+      if (text.indexOf('进行性加重') > -1) {
+        setVal('mainRisks', '持续性上腹痛进行性加重、外院拟诊急性胰腺炎、发热原因待查、进食差导致营养不足、活动受限有跌倒风险');
+        setVal('nursingFocus', '疼痛评估与护理、禁食管理、病情观察（体温、腹部体征）、补液支持、心理护理、生活护理');
+      }
+
+      // ====== 执行填充 ======
+      var count = 0;
+      for (var id in extracted) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.value = extracted[id];
+          el.classList.add('filled'); // 添加高亮效果
+          // 移除高亮class以便下次可以重新触发动画
+          setTimeout((function (e) { return function () { e.classList.remove('filled'); }; })(el), 1000);
+          count++;
+        }
+      }
+
+      if (count > 0) {
+        alert('✨ AI 成功提取并填写了 ' + count + ' 项内容，请核对！');
+        closeModal();
+      } else {
+        alert('未识别到具体病历特征，请尝试输入更详细的内容。');
+      }
+    }
+
+    // ========= 数据保存 =========
+    function saveData() {
+      var data = {};
+      var inputs = document.querySelectorAll('input, textarea');
+      for (var i = 0; i < inputs.length; i++) {
+        if (inputs[i].id) data[inputs[i].id] = inputs[i].value;
+      }
+      localStorage.setItem('nursing_assessment_data_v2', JSON.stringify(data));
+      alert('✅ 保存成功！刷新页面数据不会丢失。');
+    }
+
+    // 页面加载恢复数据
+    window.onload = function () {
+      var saved = localStorage.getItem('nursing_assessment_data_v2');
+      if (saved) {
+        var data = JSON.parse(saved);
+        for (var key in data) {
+          var el = document.getElementById(key);
+          if (el) el.value = data[key];
+        }
+      }
     }
   </script>
 </body>
